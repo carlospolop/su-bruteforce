@@ -59,8 +59,8 @@ su_brute_user_num (){
       sleep $SLEEPPROC # To not overload the system
     done
   fi
-    echo "  Wordlist exhausted, any password found for user $USER" | sed "s,.*,${C}[1;31;107m&${C}[0m,"
   wait
 }
 
 su_brute_user_num $USER
+echo "  Wordlist exhausted" | sed "s,.*,${C}[1;31;107m&${C}[0m,"
