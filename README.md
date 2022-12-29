@@ -12,3 +12,10 @@ You can configure these times using `-t` (timeout `su` process) and `-s` (sleep 
 ```
 ./suBF.sh -u <USERNAME> [-w top12000.txt]  [-t 0.7] [-s 0.007]
 ```
+
+In addition to files, you can **pipe the output from other commands** to provide the wordlist, examples:
+
+```bash
+curl -s http://10.10.10.10/wordlist.txt | ./suBF.sh -u <USERNAME> -w -
+seq 0 1000 | ./suBF.sh -u <USERNAME> -w -
+``` 
