@@ -49,7 +49,7 @@ su_brute_user_num (){
 
   if ! [[ -p /dev/stdin ]] && [ -f "$WORDLIST" ]; then
     while IFS='' read -r P || [ -n "${P}" ]; do # Loop through wordlist file   
-      su_try_pwd $USER $P & #Try TOP TRIES of passwords (by default 2000)
+      su_try_pwd $USER "$P" & #Try TOP TRIES of passwords (by default 2000)
       sleep $SLEEPPROC # To not overload the system
     done < $WORDLIST
 
