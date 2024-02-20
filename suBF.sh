@@ -28,6 +28,11 @@ if ! [ "$USER" ]; then printf "$help"; exit 0; fi
 
 if ! [[ -p /dev/stdin ]] && ! [ $WORDLIST = "-" ] && ! [ -f "$WORDLIST" ]; then echo "Wordlist ($WORDLIST) not found!"; exit 0; fi
 
+if [[ `echo '' | timeout $TIMEOUTPROC su $USER -c whoami 2>&1` == "su: must be run from a terminal" ]]; then 
+  echo "  Error: su must be run from a terminal, su-bruteforce cannot be used against this OS"
+  exit 0
+fi
+
 C=$(printf '\033')
 
 su_try_pwd (){
